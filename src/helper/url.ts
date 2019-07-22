@@ -1,6 +1,4 @@
-import { strict } from 'assert'
 import { isDate, isObject } from './util'
-import { SERVFAIL } from 'dns'
 
 function encode(val: string) {
   return encodeURIComponent(val)
@@ -10,7 +8,7 @@ function encode(val: string) {
     .replace(/%2C/gi, ',')
     .replace(/%20/g, '+')
     .replace(/%5B/gi, '[')
-    .replace(/%5D/gi, '[')
+    .replace(/%5D/gi, ']')
 }
 
 export function buildURL(url: string, params?: any): string {
@@ -40,17 +38,17 @@ export function buildURL(url: string, params?: any): string {
       }
       parts.push(`${encode(key)}=${encode(val)}`)
     })
-
-    let serializedParams = parts.join('&')
-
-    if (serializedParams) {
-      const markIndex = url.indexOf('#')
-      if (markIndex !== -1) {
-        url = url.slice(0, markIndex)
-      }
-      url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams
-    }
   })
+
+  let serializedParams = parts.join('&')
+
+  if (serializedParams) {
+    const markIndex = url.indexOf('#')
+    if (markIndex !== -1) {
+      url = url.slice(0, markIndex)
+    }
+    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams
+  }
 
   return url
 }

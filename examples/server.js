@@ -73,6 +73,15 @@ function registerBaseRouter () {
       let buf = Buffer.concat(msg)
       res.json(buf.toJSON())
     })
+  });
+
+  router.get('/authenticate', (req, res) => {
+    // res.setHeaders({
+    //   'Authorization':'Basic realm="input you id and name"',
+    // })
+    res.writeHead(401 ,{'WWW-Authenticate':'Basic realm="input you id and name"'})
+    console.log(req.header || req.headers);
+    res.end();
   })
 }
 

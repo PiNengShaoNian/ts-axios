@@ -5,11 +5,11 @@ axios({
   url: '/simple/get',
   params: {
     a: 1,
-    b: 2
+    b: 2,
+    c: [1, 2, 3]
   }
 });
 
-console.log('sdfsdf');
 
 
 
