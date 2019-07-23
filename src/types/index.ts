@@ -1,3 +1,5 @@
+import { transformRequest } from '../helper/data'
+
 export type Method =
   | 'get'
   | 'GET'
@@ -22,6 +24,9 @@ export interface AxiosRequestConfig {
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+  [propName: string]: any
+  transformRequest?: AxiosTransfomer | AxiosTransfomer[]
+  transformResponse?: AxiosTransfomer | AxiosTransfomer[]
 }
 
 export interface AxiosResponse {
@@ -48,6 +53,7 @@ export interface Axios {
     request: AxiosInterceptorManager<AxiosRequestConfig>
     response: AxiosInterceptorManager<AxiosResponse>
   }
+  defaults: AxiosRequestConfig
   request(config: AxiosRequestConfig): AxiosPromise
   get(url: string, config?: AxiosRequestConfig): AxiosPromise
   head(url: string, config?: AxiosRequestConfig): AxiosPromise
@@ -73,4 +79,8 @@ export interface ResolvedFn<T> {
 
 export interface RejectedFn {
   (error: any): any
+}
+
+export interface AxiosTransfomer {
+  (data: any, headers?: any): any
 }
