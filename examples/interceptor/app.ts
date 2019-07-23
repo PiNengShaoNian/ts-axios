@@ -35,5 +35,8 @@ axios({
     test: ''
   }
 }).then((res) => {
-  console.log(res.data)
-})
+    console.log(res.data)
+    return res;
+  }).catch(v => {
+    console.log(v);
+  })
