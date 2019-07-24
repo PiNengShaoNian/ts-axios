@@ -1,16 +1,36 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types/index'
 import { parseHeaders } from '../helper/headers'
 import { createError } from '../helper/error'
+import { isURLSameOrigin } from '../helper/url'
+import { read } from '../helper/cookie'
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
-    const { data = null, url, method = 'get', headers, responseType, timeout, cancelToken } = config
+    const {
+      data = null,
+      url,
+      method = 'get',
+      headers,
+      responseType,
+      timeout,
+      cancelToken,
+      withCredentials,
+      xsrfCookieName,
+      xsrfHeaderName
+    } = config
 
     const request = new XMLHttpRequest()
 
     if (responseType) request.responseType = responseType
 
     if (timeout) request.timeout = timeout
+
+    if (withCredentials && isURLSameOrigin(url!) && xsrfCookieName) {
+      const xsrfValue = read(xsrfCookieName)
+      if (xsrfValue) headers[xsrfHeaderName!] = xsrfValue
+    }
+
+    if (withCredentials) request.withCredentials = withCredentials
 
     request.onerror = function handleError() {
       reject(createError('network error', config, null, request))
