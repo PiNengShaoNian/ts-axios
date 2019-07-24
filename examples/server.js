@@ -4,6 +4,7 @@ const webpack = require('webpack')
 const webpackDevMiddleware = require('webpack-dev-middleware')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 const WebpackConfig = require('./webpack.config')
+const cookieParser = require('cookie-parser');
 
 const app = express()
 const compiler = webpack(WebpackConfig)
@@ -18,10 +19,15 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.use(webpackHotMiddleware(compiler))
 
-app.use(express.static(__dirname))
+app.use(express.static(__dirname, {
+  setHeaders(res) {
+    res.cookie('XSRF-TOKEN-D', '123456');
+  }
+}))
 
 app.use(bodyParser.json())
 // app.use(bodyParser.text())
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }))
 
 const router = express.Router()
@@ -38,12 +44,23 @@ registerInterceptorRouter()
 
 registerConfigRouter()
 
+registerCancelRouter();
+
+registerMoreRouter();
+
 app.use(router)
 
-const port = process.env.PORT || 8081
+const port = process.env.PORT || 8080
 module.exports = app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}, Ctrl+C to stop`)
-})
+});
+
+const cros = {
+  'Access-Control-Allow-Origin': 'http://localhost:8080',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
 
 function registerSimpleRouter() {
   router.get('/simple/get', function (req, res) {
@@ -169,6 +186,40 @@ function registerInterceptorRouter() {
 function registerConfigRouter() {
   router.post('/config/post', function (req, res) {
     res.json(req.body)
+  })
+}
+
+function registerCancelRouter() {
+  router.post('/cancel/post', function (req, res) {
+    setTimeout(() => {
+      res.json({
+        cancel: 'post'
+      });
+    }, 1000);
+  });
+
+  router.get('/cancel/get', function (req, res) {
+    setTimeout(() => {
+      res.json({
+        cancel: 'get'
+      });
+    }, 1000);
+  });
+}
+
+function registerMoreRouter() {
+  router.post('/more/server2', function (req, res) {
+    res.set(cros);
+    res.json(req.cookies);
+  });
+
+  router.options('/more/server2', function (req, res) {
+    res.set(cros);
+    res.end();
+  });
+
+  router.get('/more/get', function(req, res) {
+    res.json(req.cookies);
   })
 }
 

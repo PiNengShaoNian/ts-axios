@@ -1,4 +1,5 @@
 import { transformRequest } from '../helper/data'
+import { Stream } from 'stream'
 
 export type Method =
   | 'get'
@@ -27,6 +28,12 @@ export interface AxiosRequestConfig {
   [propName: string]: any
   transformRequest?: AxiosTransfomer | AxiosTransfomer[]
   transformResponse?: AxiosTransfomer | AxiosTransfomer[]
+  cancelToken?: CancelToken
+  withCredentials?: boolean
+  xsrfCookieName?: string
+  xsrfHeaderName?: string
+  onDownloadProgress?: (progressEvent: ProgressEvent) => void
+  onUploadProgress?: (progressEvent: ProgressEvent) => void
 }
 
 export interface AxiosResponse {
@@ -68,6 +75,13 @@ export interface AxiosInstance extends Axios {
   (config: AxiosRequestConfig): AxiosPromise
 }
 
+export interface AxiosStatic extends AxiosInstance {
+  create(config?: AxiosRequestConfig): AxiosInstance
+  CancelToken: CancelTakenStatic
+  Cancel: CancelStatic
+  isCancel: (val: any) => boolean
+}
+
 export interface AxiosInterceptorManager<T> {
   use: (resolved: ResolvedFn<T>, rejected?: RejectedFn) => number
   eject: (id: number) => void
@@ -83,4 +97,36 @@ export interface RejectedFn {
 
 export interface AxiosTransfomer {
   (data: any, headers?: any): any
+}
+
+export interface CancelToken {
+  promise: Promise<Cancel>
+  reason?: Cancel
+  throwIfRequested(): void
+}
+
+export interface Canceler {
+  (message?: string): void
+}
+
+export interface CancelExecutor {
+  (cancel: Canceler): void
+}
+
+export interface CancelTokenSource {
+  token: CancelToken
+  cancel: Canceler
+}
+
+export interface CancelTakenStatic {
+  new (executor: CancelExecutor): CancelToken
+  source(): CancelTokenSource
+}
+
+export interface Cancel {
+  message?: string
+}
+
+export interface CancelStatic {
+  new (message?: string): Cancel
 }

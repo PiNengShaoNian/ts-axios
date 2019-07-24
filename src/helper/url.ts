@@ -52,3 +52,29 @@ export function buildURL(url: string, params?: any): string {
 
   return url
 }
+
+interface URLOrigin {
+  protocal: string
+  host: string
+}
+
+export function isURLSameOrigin(requestURL: string): boolean {
+  const parsedOrigin = resolveURL(requestURL)
+  return (
+    parsedOrigin.protocal === currentOrigin.protocal && parsedOrigin.host === currentOrigin.host
+  )
+}
+
+const urlParsingNode = window.document.createElement('a')
+const currentOrigin = resolveURL(window.location.href)
+
+function resolveURL(url: string): URLOrigin {
+  urlParsingNode.setAttribute('href', url)
+
+  const { protocal, host } = urlParsingNode
+
+  return {
+    protocal,
+    host
+  }
+}
